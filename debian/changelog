@@ -132,6 +132,11 @@ tuxedo-drivers (4.14.0) noble; urgency=medium
 
  -- Werner Sembach <tux@tuxedocomputers.com>  Wed, 11 Jun 2025 18:17:28 +0200
 
+tuxedo-drivers (4.13.2) noble; urgency=medium
+
+  * add charge control
+  * fixed micro phone mute
+  
 tuxedo-drivers (4.13.1) noble; urgency=medium
 
   * InfinityFlex: Make FN-key no longer disable touchpad
