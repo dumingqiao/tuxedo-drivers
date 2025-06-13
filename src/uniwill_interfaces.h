@@ -118,6 +118,9 @@ typedef void (uniwill_event_callb_t)(u32);
 #define UW_EC_REG_ROMID_SPECIAL_1			0x077e
 #define UW_EC_REG_ROMID_SPECIAL_2			0x077f
 
+#define UW_EC_REG_BATT_CHARGE_CTRL			0x07B9
+#define UW_EC_REG_BATT_CHARGE_CTRL_VALUE_MASK		GENMASK(6, 0)
+
 struct uniwill_interface_t {
 	char *string_id;
 	uniwill_event_callb_t *event_callb;

@@ -8,22 +8,26 @@
 #include <linux/sysfs.h>
 #include <linux/types.h>
 #include <linux/version.h>
-
-#include "ec.c"
+#include "uniwill_interfaces.h"
 
 /* ========================================================================== */
 static bool battery_hook_registered;
+
+/* Function prototypes */
+int __init tuxedo_battery_setup(void);
+void tuxedo_battery_cleanup(void);
+
 /* ========================================================================== */
 
 static ssize_t charge_control_end_threshold_show(struct device *dev,
 						 struct device_attribute *attr, char *buf)
 {
-	int status = ec_read_byte(BATT_CHARGE_CTRL_ADDR);
+	uint8_t status;
 
-	if (status < 0)
+	if (uniwill_read_ec_ram(UW_EC_REG_BATT_CHARGE_CTRL, &status) < 0)
 		return status;
 
-	status &= BATT_CHARGE_CTRL_VALUE_MASK;
+	status &= UW_EC_REG_BATT_CHARGE_CTRL_VALUE_MASK;
 
 	if (status == 0)
 		status = 100;
@@ -34,21 +38,21 @@ static ssize_t charge_control_end_threshold_show(struct device *dev,
 static ssize_t charge_control_end_threshold_store(struct device *dev, struct device_attribute *attr,
 						  const char *buf, size_t count)
 {
-	int status, value;
+	uint8_t status;
+	int value;
 
 	if (kstrtoint(buf, 10, &value) || !(1 <= value && value <= 100))
 		return -EINVAL;
 
-	status = ec_read_byte(BATT_CHARGE_CTRL_ADDR);
-	if (status < 0)
+	if (uniwill_read_ec_ram(UW_EC_REG_BATT_CHARGE_CTRL, &status) < 0)
 		return status;
 
 	if (value == 100)
 		value = 0;
 
-	status = (status & ~BATT_CHARGE_CTRL_VALUE_MASK) | value;
+	status = (status & ~UW_EC_REG_BATT_CHARGE_CTRL_VALUE_MASK) | value;
 
-	status = ec_write_byte(BATT_CHARGE_CTRL_ADDR, status);
+	status = uniwill_write_ec_ram(UW_EC_REG_BATT_CHARGE_CTRL, status);
 
 	if (status < 0)
 		return status;
