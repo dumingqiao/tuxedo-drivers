@@ -45,10 +45,31 @@ clean:
 
 package: package-deb package-rpm
 
-package-deb:
-	debuild --no-tgz-check --no-sign
+clean:
+	rm -f src/dkms.conf
+	rm -f tuxedo-drivers.spec
+	rm -f $(PACKAGE_NAME)-*.tar.gz
+	rm -rf debian/.debhelper
+	rm -f debian/*.debhelper
+	rm -f debian/*.debhelper.log
+	rm -f debian/*.substvars
+	rm -f debian/debhelper-build-stamp
+	rm -f debian/files
+	rm -rf debian/tuxedo-drivers
+	rm -rf debian/tuxedo-cc-wmi
+	rm -rf debian/tuxedo-keyboard
+	rm -rf debian/tuxedo-keyboard-dkms
+	rm -rf debian/tuxedo-keyboard-ite
+	rm -rf debian/tuxedo-touchpad-fix
+	rm -rf debian/tuxedo-wmi-dkms
+	rm -rf debian/tuxedo-xp-xc-airplane-mode-fix
+	rm -rf debian/tuxedo-xp-xc-touchpad-key-fix
+	make -C $(KDIR) M=$(PWD) $(MAKEFLAGS) clean
 
-package-rpm:
+install:
+	make -C $(KDIR) M=$(PWD) $(MAKEFLAGS) modules_install
+
+dkmsinstall:
 	sed 's/#MODULE_VERSION#/$(PACKAGE_VERSION)/' debian/tuxedo-drivers.dkms > src/dkms.conf
 	sed 's/#MODULE_VERSION#/$(PACKAGE_VERSION)/' tuxedo-drivers.spec.in > tuxedo-drivers.spec
 	echo >> tuxedo-drivers.spec
