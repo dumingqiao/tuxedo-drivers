@@ -74,17 +74,7 @@ dkmsinstall:
 	sed 's/#MODULE_VERSION#/$(PACKAGE_VERSION)/' tuxedo-drivers.spec.in > tuxedo-drivers.spec
 	echo >> tuxedo-drivers.spec
 	./debian-changelog-to-rpm-changelog.awk debian/changelog >> tuxedo-drivers.spec
-	mkdir -p $(shell rpm --eval "%{_sourcedir}")
-	tar --create --file $(shell rpm --eval "%{_sourcedir}")/$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.xz \
-		--transform="s/debian\/copyright/$(PACKAGE_NAME)-$(PACKAGE_VERSION)\/LICENSE/" \
-		--transform="s/usr/$(PACKAGE_NAME)-$(PACKAGE_VERSION)\/usr/" \
-		--transform="s/src/$(PACKAGE_NAME)-$(PACKAGE_VERSION)\/usr\/src\/$(PACKAGE_NAME)-$(PACKAGE_VERSION)/" \
-		--exclude=*.cmd \
-		--exclude=*.ko \
-		--exclude=*.mod \
-		--exclude=*.mod.c \
-		--exclude=*.o \
-		--exclude=*.o.d \
-		--exclude=modules.order \
-		debian/copyright src usr
-	rpmbuild -ba tuxedo-drivers.spec
+	if ! [ "$(shell dkms status -m tuxedo-drivers -v $(PACKAGE_VERSION))" = "" ]; then dkms remove $(PACKAGE_NAME)/$(PACKAGE_VERSION); fi
+	rm -rf /usr/src/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+	rsync --recursive --exclude=*.cmd --exclude=*.d --exclude=*.ko --exclude=*.mod --exclude=*.mod.c --exclude=*.o --exclude=modules.order src/ /usr/src/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+	dkms install $(PACKAGE_NAME)/$(PACKAGE_VERSION)
